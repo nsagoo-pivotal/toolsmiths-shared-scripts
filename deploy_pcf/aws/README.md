@@ -20,7 +20,7 @@ This Concourse pipeline is used to quickly spin up a PCF environment using the [
   * deploy-pcf
   * destroy-pcf-aws
 
-  
+
 ## deploy-pcf-aws.yml
 
 #### Prerequisites:
@@ -31,7 +31,7 @@ This Concourse pipeline is used to quickly spin up a PCF environment using the [
 * an ssh keypair for AWS to use when deploying instances must be added to this repo.
  **NOTE**: make sure your key-pair name (format: id_rsa_\<ENV_NAME\>)
 
-You can create a new keypair with the command:
+Create a new keypair with the command below; Do not use the AWS Console or AWS CLI to create the keypair.
 ```
 $ ssh-keygen -t rsa -f $environment_yml_git_repo/$environment_yml_folder/$aws_private_key_file_name
 
@@ -46,47 +46,67 @@ You will need to ensure the wildcard cname and A record for the Ops Manager and 
 
 #### Usage:
 
-Edit deploy-pcf-aws.yml and configure the following values at the top of the file:
+Edit pcfdeploycreds-config.yml and configure all the following values listed in the file:
 
 ```
-# === concourse ===
-worker_tag: &worker_tag
-github_user: &github_user cf-toolsmiths
-github_email: &github_email cf-toolsmiths@pivotal.io
-github_key: &github_key {{github-key}}
-download_retry_attempts: &retry 3
+# == pivnet ==
+# download pivnet token from https://network.pivotal.io/users/dashboard/edit-profile
+pivnet-token:
 
+#Select Ops Manager Release version from https://network.pivotal.io/products/ops-manager ; e.g. 1.8.4
+ops-manager-version:
 
-# === pivnet ===
-pivnet_token: &pivnet_token {{pivnet-token}}
-opsmgr_version: &opsmgr_version 1.7.9
-ert_version: &ert_version 1.7.9
+#Select PCF Elastic Runtime compatible with Ops Manager from https://network.pivotal.io/products/elastic-runtime ; e.g. 1.8.5
+elastic-runtime-version:
 
-# ===environment config ===
-iaas: &iaas aws
+# == aws config ==
+aws-access-key-id:
+aws-secret-access-key:
 
-environment_yml_git_repo: &environment_yml_git_repo git@github.com:<YOUR-ORG>/<YOUR-REPO>
-environment_yml_folder: &environment_yml_folder aws/environments/<ENVIRONMENT-NAME> # this is the path within your git repo
+# select any name for your environment
+aws-environment-name:
 
-aws_access_key_id: &aws_access_key_id {{aws-access-key-id}}
-aws_secret_access_key: &aws_secret_access_key {{aws-secret-access-key}}
-aws_environment_name: &aws_environment_name <ENVIRONMENT-NAME>
-aws_system_domain: &aws_system_domain <ENVIRONMENT-NAME>.example.com
-aws_key_pair_name: &aws_key_pair_name <ENVIRONMENT-KEY-PAIR-NAME>
-aws_rds_username: &aws_rds_username <RDS-USERNAME>
-aws_rds_password: &aws_rds_password <RDS-PASSWORD>
-aws_public_key: &aws_public_key <PUBLIC-KEY-STRING>
-aws_private_key_file_name: &aws_private_key_file_name <PRIVATE-KEY-FILENAME> # this key is expected to be inside your environment folder inside the git repo
-aws_region: &aws_region <AWS-REGION>
-aws_s3_endpoint: &aws_s3_endpoint 'https://s3.amazonaws.com' # This varies per region: http://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region
+# should begin with id_rsa_<ENVIRONMENT_NAME>
+aws-key-pair-name:
 
-ops_manager_password: &ops_manager_password <YOUR-OPSMANAGER-PASSWORD>
+# should begin with ssh-rsa ...
+aws-public-key:
 
-aws_route_53_access_key_id: &aws_route53_access_key_id {{aws-route53-access-key-id}}
-aws_route_53_secret_access_key: &aws_route53_secret_access_key {{aws-route53-secret-access-key}}
-aws_route_53_hosted_zone_id: &aws_route53_hosted_zone_id {{aws-route53-hosted-zone-id}}
-ops_manager_fqdn: &ops_manager_fqdn <YOUR-OPSMANAGER-FQDN>
+# this private key is expected to be inside your environment folder inside the git repo
+aws-private-key-file-name:
 
+# == environment config ==
+private-github-repo: git@github.com:<YOUR-ORG>/<YOUR-REPO> #create a new private github repo in your account
+environment-yml-folder: aws/environments/<ENVIRONMENT-NAME> # select any name for your environment and create this path within your git repo
+
+# pick any subdomin name for your system apps followed by your primary domain name; e.g. system.pcfplatform.com
+aws-system-domain:
+
+aws-rds-username:
+aws-rds-password:
+
+aws-region:
+aws-s3-endpoint: 'https://s3.amazonaws.com' # This varies per region: http://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region
+aws-route-53-hosted-zone-id:
+
+# == ops manager config ==
+ops-manager-fqdn:
+ops-manager-password:
+
+# == concourse ==
+github-user:
+github-email:
+
+# make sure to indent your github key below; note, only github keys without passphrase are compatible;
+# reference: https://help.github.com/articles/checking-for-existing-ssh-keys/
+github-key: |
+  -----BEGIN RSA PRIVATE KEY-----
+  xxxxxxxxxxxx......
+  -----END RSA PRIVATE KEY-----
+```
+
+Optional: Edit deploy-pcf-aws.yml to setup up email notifications.
+```
 # OPTIONAL: This is for setting up E-mail notifications. If you do not want to set this up, delete the values "<...>"
 smtp_from: &smtp_from <SMTP-FROM-ADDRESS>
 smtp_address: &smtp_address <SMTP-ADDRESS>
