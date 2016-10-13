@@ -35,7 +35,7 @@ environment-yml-folder: aws/environments/<ENVIRONMENT-NAME>
 # pick any subdomin name for your system apps followed by your primary domain name; e.g. system.pcfplatform.com
 aws-system-domain:
 
-# pick secure username and password for your Relational Database Service (RDS)
+# pick secure username and password for your Relational Database Service (RDS); no special characters please!
 aws-rds-username:
 aws-rds-password:
 
