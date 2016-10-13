@@ -1,0 +1,60 @@
+
+# == pivnet ==
+# download pivnet token from network.pivotal.io/users/dashboard/edit-profile
+pivnet-token:
+
+#Select Ops Manager Release version from network.pivotal.io/products/ops-manager; e.g. 1.8.4
+ops-manager-version:
+
+#Select PCF Elastic Runtime compatible with Ops Manager from network.pivotal.io/products/elastic-runtime; e.g. 1.8.5
+elastic-runtime-version:
+
+# == aws config ==
+aws-access-key-id:
+aws-secret-access-key:
+
+# select any name for your environment
+aws-environment-name:
+
+# should begin with id_rsa_<ENVIRONMENT_NAME>
+aws-key-pair-name:
+
+# should begin with ssh-rsa ...
+aws-public-key:
+
+# this private key is expected to be inside your environment folder inside the git repo
+aws-private-key-file-name:
+
+# == environment config ==
+#create a new private github repo in your account
+private-github-repo: git@github.com:<YOUR-ORG>/<YOUR-REPO>
+
+# create this path with your environment name within your git repo
+environment-yml-folder: aws/environments/<ENVIRONMENT-NAME>
+
+# pick any subdomin name for your system apps followed by your primary domain name; e.g. system.pcfplatform.com
+aws-system-domain:
+
+# pick secure username and password for your Relational Database Service (RDS)
+aws-rds-username:
+aws-rds-password:
+
+# This varies per region: http://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region
+aws-s3-endpoint: 'https://s3.amazonaws.com'
+aws-region:
+aws-route-53-hosted-zone-id:
+
+# == ops manager config ==
+ops-manager-fqdn:
+ops-manager-password:
+
+# == concourse ==
+github-user:
+github-email:
+
+# make sure to indent your github key below; note, only github keys without passphrase are compatible;
+# reference: https://help.github.com/articles/checking-for-existing-ssh-keys/
+github-key: |
+  -----BEGIN RSA PRIVATE KEY-----
+  xxxxxxxxxxxx......
+  -----END RSA PRIVATE KEY-----

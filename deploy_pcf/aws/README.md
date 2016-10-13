@@ -46,7 +46,7 @@ You will need to ensure the wildcard cname and A record for the Ops Manager and 
 
 #### Usage:
 
-Edit pcfdeploycreds-config.yml and configure all the following values listed in the file:
+Edit pcfdeploycreds.yml and configure all the following values listed in the file:
 
 ```
 
@@ -120,6 +120,12 @@ smtp_address: &smtp_address <SMTP-ADDRESS>
 smtp_port: &smtp_port <SMTP-PORT>
 smtp_user: &smtp_user <SMTP-USER>
 smtp_password: &smtp_password <SMTP-PASSWORD>
+```
+
+Concourse command to setup pipeline
+```
+fly -t <target> set-pipeline --pipeline pcf --config deploy-pcf-aws.yml --load-vars-from pcfdeploycreds.yml
+fly -t <target> unpause-pipeline --pipeline pcf
 ```
 
 ### bootstrap-aws
