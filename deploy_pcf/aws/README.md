@@ -49,14 +49,15 @@ You will need to ensure the wildcard cname and A record for the Ops Manager and 
 Edit pcfdeploycreds-config.yml and configure all the following values listed in the file:
 
 ```
+
 # == pivnet ==
-# download pivnet token from https://network.pivotal.io/users/dashboard/edit-profile
+# download pivnet token from network.pivotal.io/users/dashboard/edit-profile
 pivnet-token:
 
-#Select Ops Manager Release version from https://network.pivotal.io/products/ops-manager ; e.g. 1.8.4
+#Select Ops Manager Release version from network.pivotal.io/products/ops-manager; e.g. 1.8.4
 ops-manager-version:
 
-#Select PCF Elastic Runtime compatible with Ops Manager from https://network.pivotal.io/products/elastic-runtime ; e.g. 1.8.5
+#Select PCF Elastic Runtime compatible with Ops Manager from network.pivotal.io/products/elastic-runtime; e.g. 1.8.5
 elastic-runtime-version:
 
 # == aws config ==
@@ -76,17 +77,22 @@ aws-public-key:
 aws-private-key-file-name:
 
 # == environment config ==
-private-github-repo: git@github.com:<YOUR-ORG>/<YOUR-REPO> #create a new private github repo in your account
-environment-yml-folder: aws/environments/<ENVIRONMENT-NAME> # select any name for your environment and create this path within your git repo
+#create a new private github repo in your account
+private-github-repo: git@github.com:<YOUR-ORG>/<YOUR-REPO>
+
+# create this path with your environment name within your git repo
+environment-yml-folder: aws/environments/<ENVIRONMENT-NAME>
 
 # pick any subdomin name for your system apps followed by your primary domain name; e.g. system.pcfplatform.com
 aws-system-domain:
 
+# pick secure username and password for your Relational Database Service (RDS)
 aws-rds-username:
 aws-rds-password:
 
+# This varies per region: http://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region
+aws-s3-endpoint: 'https://s3.amazonaws.com'
 aws-region:
-aws-s3-endpoint: 'https://s3.amazonaws.com' # This varies per region: http://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region
 aws-route-53-hosted-zone-id:
 
 # == ops manager config ==
@@ -103,6 +109,7 @@ github-key: |
   -----BEGIN RSA PRIVATE KEY-----
   xxxxxxxxxxxx......
   -----END RSA PRIVATE KEY-----
+
 ```
 
 Optional: Edit deploy-pcf-aws.yml to setup up email notifications.
