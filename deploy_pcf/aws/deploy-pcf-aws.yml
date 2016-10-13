@@ -1,48 +1,48 @@
 ---
 # === concourse ===
 worker_tag: &worker_tag
-github_user: &github_user cf-toolsmiths
-github_email: &github_email cf-toolsmiths@pivotal.io
+github_user: &github_user {{github-user}}
+github_email: &github_email {{github-email}}
 github_key: &github_key {{github-key}}
 download_retry_attempts: &retry 3
 
 
 # === pivnet ===
 pivnet_token: &pivnet_token {{pivnet-token}}
-opsmgr_version: &opsmgr_version 1.7.9
-ert_version: &ert_version 1.7.13
+opsmgr_version: &opsmgr_version {{ops-manager-version}}
+ert_version: &ert_version {{elastic-runtime-version}}
 
 # ===environment config ===
 iaas: &iaas aws
 
-environment_yml_git_repo: &environment_yml_git_repo git@github.com:<YOUR-ORG>/<YOUR-REPO>
-environment_yml_folder: &environment_yml_folder aws/environments/<ENVIRONMENT-NAME> # this is the path within your git repo
+environment_yml_git_repo: &environment_yml_git_repo {{private-github-repo}}
+environment_yml_folder: &environment_yml_folder {{environment-yml-folder}}
 
-aws_access_key_id: &aws_access_key_id <AWS-ACCESS-KEY-ID>
-aws_secret_access_key: &aws_secret_access_key <AWS-SECRET-ACCESS-KEY>
-aws_environment_name: &aws_environment_name <ENVIRONMENT-NAME>
-aws_system_domain: &aws_system_domain <ENVIRONMENT-NAME>.example.com
-aws_key_pair_name: &aws_key_pair_name <ENVIRONMENT-KEY-PAIR-NAME>
-aws_rds_username: &aws_rds_username <RDS-USERNAME>
-aws_rds_password: &aws_rds_password <RDS-PASSWORD>
-aws_public_key: &aws_public_key <PUBLIC-KEY-STRING>
-aws_private_key_file_name: &aws_private_key_file_name <PRIVATE-KEY-FILENAME> # this key is expected to be inside your environment folder inside the git repo
-aws_region: &aws_region <AWS-REGION>
-aws_s3_endpoint: &aws_s3_endpoint 'https://s3.amazonaws.com' # This varies per region: http://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region
+aws_access_key_id: &aws_access_key_id {{aws-access-key-id}}
+aws_secret_access_key: &aws_secret_access_key {{aws-secret-access-key}}
+aws_environment_name: &aws_environment_name {{aws-environment-name}}
+aws_system_domain: &aws_system_domain {{aws-system-domain}}
+aws_key_pair_name: &aws_key_pair_name {{aws-key-pair-name}}
+aws_rds_username: &aws_rds_username {{aws-rds-username}}
+aws_rds_password: &aws_rds_password {{aws-rds-password}}
+aws_public_key: &aws_public_key {{aws-public-key}}
+aws_private_key_file_name: &aws_private_key_file_name {{aws-private-key-file-name}}
+aws_region: &aws_region {{aws-region}}
+aws_s3_endpoint: &aws_s3_endpoint {{aws-s3-endpoint}}
 
-aws_route_53_access_key_id: &aws_route53_access_key_id <AWS-ROUTE53-ACCESS-KEY-ID>
-aws_route_53_secret_access_key: &aws_route53_secret_access_key <AWS-ROUTE53-SECRET-ACCESS-KEY>
-aws_route_53_hosted_zone_id: &aws_route53_hosted_zone_id <AWS-ROUTE53-HOSTED-ZONE-ID>
-ops_manager_fqdn: &ops_manager_fqdn <YOUR-OPSMANAGER-FQDN>
+aws_route_53_access_key_id: &aws_route53_access_key_id {{aws-access-key-id}}
+aws_route_53_secret_access_key: &aws_route53_secret_access_key {{aws-secret-access-key}}
+aws_route_53_hosted_zone_id: &aws_route53_hosted_zone_id {{aws-route-53-hosted-zone-id}}
 
-ops_manager_password: &ops_manager_password <YOUR-OPSMANAGER-PASSWORD>
+ops_manager_fqdn: &ops_manager_fqdn {{ops-manager-fqdn}}
+ops_manager_password: &ops_manager_password {{ops-manager-password}}
 
 # OPTIONAL: This is for setting up E-mail notifications. If you do not want to set this up, delete the values "<...>"
-smtp_from: &smtp_from <SMTP-FROM-ADDRESS>
-smtp_address: &smtp_address <SMTP-ADDRESS>
-smtp_port: &smtp_port <SMTP-PORT>
-smtp_user: &smtp_user <SMTP-USER>
-smtp_password: &smtp_password <SMTP-PASSWORD>
+smtp_from: &smtp_from
+smtp_address: &smtp_address
+smtp_port: &smtp_port
+smtp_user: &smtp_user
+smtp_password: &smtp_password
 
 groups:
 - name: bootstrap-aws
@@ -94,7 +94,10 @@ jobs:
       privileged: true
       config:
         platform: linux
-        image: docker:///cftoolsmiths/aws_tools
+        image_resource:
+          type: docker-image
+          source:
+            repository: cftoolsmiths/aws_tools
         inputs:
         - name: toolsmiths-shared-scripts
         - name: environment-ymls
@@ -115,9 +118,12 @@ jobs:
       privileged: true
       config:
         platform: linux
+        image_resource:
+          type: docker-image
+          source:
+            repository: cftoolsmiths/aws_tools
         inputs:
         - name: environment-ymls
-        image: docker:///cftoolsmiths/aws_tools
         run:
           path: /bin/bash
           args: ['-c', 'echo "Uploading public key to aws" && aws iam upload-server-certificate --server-certificate-name ${AWS_ENVIRONMENT_NAME} --certificate-body file://${PWD}/environment-ymls/${ENV_FOLDER}/${AWS_ENVIRONMENT_NAME}.pem --private-key file://${PWD}/environment-ymls/${ENV_FOLDER}/${AWS_ENVIRONMENT_NAME}.key']
@@ -141,7 +147,10 @@ jobs:
       privileged: true
       config:
         platform: linux
-        image: docker:///cftoolsmiths/deploy-pcf-vsphere
+        image_resource:
+          type: docker-image
+          source:
+            repository: cftoolsmiths/deploy-pcf-aws
         inputs:
         - name: toolsmiths-shared-scripts
         outputs:
@@ -157,7 +166,10 @@ jobs:
       privileged: true
       config:
         platform: linux
-        image: docker:///cftoolsmiths/aws_tools
+        image_resource:
+          type: docker-image
+          source:
+            repository: cftoolsmiths/aws_tools
         run:
           path: /bin/bash
           args: ['-c', 'echo "Uploading public key to aws" && aws ec2 import-key-pair --key-name ${AWS_KEY_PAIR_NAME} --public-key-material "$(echo ${AWS_PUBLIC_KEY})"']
@@ -172,7 +184,10 @@ jobs:
       privileged: true
       config:
         platform: linux
-        image: docker:///cftoolsmiths/aws_tools
+        image_resource:
+          type: docker-image
+          source:
+            repository: cftoolsmiths/aws_tools
         outputs:
         - name: cloudformation-parameters
         run:
@@ -194,7 +209,10 @@ jobs:
       privileged: true
       config:
         platform: linux
-        image: docker:///cftoolsmiths/aws_tools
+        image_resource:
+          type: docker-image
+          source:
+            repository: cftoolsmiths/aws_tools
         inputs:
         - name: pivnet-downloads
         - name: cloudformation-parameters
@@ -224,7 +242,10 @@ jobs:
       privileged: true
       config:
         platform: linux
-        image: docker:///cftoolsmiths/deploy-pcf-aws
+        image_resource:
+          type: docker-image
+          source:
+            repository: cftoolsmiths/deploy-pcf-aws
         inputs:
         - name: toolsmiths-shared-scripts
         - name: environment-ymls
@@ -271,7 +292,10 @@ jobs:
       privileged: true
       config:
         platform: linux
-        image: docker:///cftoolsmiths/deploy-pcf-aws
+        image_resource:
+          type: docker-image
+          source:
+            repository: cftoolsmiths/deploy-pcf-aws
         inputs:
         - name: toolsmiths-shared-scripts
         outputs:
@@ -288,7 +312,10 @@ jobs:
       privileged: true
       config:
         platform: linux
-        image: docker:///cftoolsmiths/deploy-pcf-aws
+        image_resource:
+          type: docker-image
+          source:
+            repository: cftoolsmiths/deploy-pcf-aws
         inputs:
         - name: toolsmiths-shared-scripts
         - name: p-runtime
@@ -332,7 +359,10 @@ jobs:
       privileged: true
       config:
         platform: linux
-        image: docker:///cftoolsmiths/deploy-pcf-aws
+        image_resource:
+          type: docker-image
+          source:
+            repository: cftoolsmiths/deploy-pcf-aws
         inputs:
         - name: toolsmiths-shared-scripts
         - name: environment-ymls
@@ -352,7 +382,10 @@ jobs:
       privileged: true
       config:
         platform: linux
-        image: docker:///cftoolsmiths/deploy-pcf-aws
+        image_resource:
+          type: docker-image
+          source:
+            repository: cftoolsmiths/deploy-pcf-aws
         inputs:
         - name: toolsmiths-shared-scripts
         - name: environment-ymls
@@ -384,7 +417,10 @@ jobs:
       privileged: true
       config:
         platform: linux
-        image: docker:///cftoolsmiths/deploy-pcf-aws
+        image_resource:
+          type: docker-image
+          source:
+            repository: cftoolsmiths/deploy-pcf-aws
         inputs:
         - name: toolsmiths-shared-scripts
         outputs:
@@ -403,7 +439,10 @@ jobs:
       privileged: true
       config:
         platform: linux
-        image: docker:///cftoolsmiths/deploy-pcf-aws
+        image_resource:
+          type: docker-image
+          source:
+            repository: cftoolsmiths/deploy-pcf-aws
         inputs:
         - name: toolsmiths-shared-scripts
         - name: pivnet-downloads
@@ -439,7 +478,10 @@ jobs:
       privileged: true
       config:
         platform: linux
-        image: docker:///cftoolsmiths/deploy-pcf-aws
+        image_resource:
+          type: docker-image
+          source:
+            repository: cftoolsmiths/deploy-pcf-aws
         inputs:
         - name: toolsmiths-shared-scripts
         - name: environment-ymls
@@ -471,7 +513,10 @@ jobs:
       privileged: true
       config:
         platform: linux
-        image: docker:///cftoolsmiths/deploy-pcf-aws
+        image_resource:
+          type: docker-image
+          source:
+            repository: cftoolsmiths/deploy-pcf-aws
         inputs:
         - name: toolsmiths-shared-scripts
         - name: environment-ymls
@@ -500,7 +545,10 @@ jobs:
       privileged: true
       config:
         platform: linux
-        image: docker:///cftoolsmiths/deploy-pcf-aws
+        image_resource:
+          type: docker-image
+          source:
+            repository: cftoolsmiths/deploy-pcf-aws
         inputs:
         - name: toolsmiths-shared-scripts
         - name: environment-ymls
@@ -520,7 +568,10 @@ jobs:
       privileged: true
       config:
         platform: linux
-        image: docker:///cftoolsmiths/aws_tools
+        image_resource:
+          type: docker-image
+          source:
+            repository: cftoolsmiths/aws_tools
         run:
           path: /bin/bash
           args: ['-c', 'echo "Deleting key-pair: ${AWS_KEY_PAIR_NAME} ..." && aws ec2 delete-key-pair --key-name ${AWS_KEY_PAIR_NAME}']
@@ -540,7 +591,10 @@ jobs:
       privileged: true
       config:
         platform: linux
-        image: docker:///cftoolsmiths/aws_tools
+        image_resource:
+          type: docker-image
+          source:
+            repository: cftoolsmiths/aws_tools
         run:
           path: /bin/bash
           args: ['-c', 'echo "Deleting key-pair: ${AWS_KEY_PAIR_NAME} ..." && aws ec2 delete-key-pair --key-name ${AWS_KEY_PAIR_NAME}']
@@ -554,7 +608,10 @@ jobs:
       privileged: true
       config:
         platform: linux
-        image: docker:///cftoolsmiths/aws_tools
+        image_resource:
+          type: docker-image
+          source:
+            repository: cftoolsmiths/aws_tools
         run:
           path: /bin/bash
           args: ['-c', 'echo "Deleting cloudformation-stack: ${AWS_ENVIRONMENT_NAME} ..." && aws cloudformation delete-stack --stack-name ${AWS_ENVIRONMENT_NAME}']
@@ -568,7 +625,10 @@ jobs:
       privileged: true
       config:
         platform: linux
-        image: docker:///cftoolsmiths/aws_tools
+        image_resource:
+          type: docker-image
+          source:
+            repository: cftoolsmiths/aws_tools
         inputs:
         - name: environment-ymls
         run:

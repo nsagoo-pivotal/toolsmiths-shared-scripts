@@ -1,0 +1,29 @@
+
+# == pivnet ==
+pivnet-token: # download pivnet token from https://network.pivotal.io/users/dashboard/edit-profile
+ops-manager-version: #Select Ops Manager Release version from https://network.pivotal.io/products/ops-manager
+elastic-runtime-version: #Select PCF Elastic Runtime compatible with Ops Manager from https://network.pivotal.io/products/elastic-runtime
+
+# == environment config ==
+private-github-repo: #create a new private github repo in your account
+environment-yml-folder: # this is the path within your git repo
+
+aws-access-key-id:
+aws-secret-access-key:
+aws-environment-name:
+aws-system-domain:
+aws-key-pair-name:
+aws-rds-username:
+aws-rds-username:
+aws-public-key:
+aws-private-key-file-name:  # this key is expected to be inside your environment folder inside the git repo
+aws-region:
+aws-s3-endpoint: 'https://s3.amazonaws.com' # This varies per region: http://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region
+aws-route-53-hosted-zone-id:
+ops-manager-fqdn:
+ops-manager-password:
+
+# == concourse ==
+github-user:
+github-email:
+github-key:
